@@ -114,17 +114,17 @@ def save_high_score(room, round_number, score):
         db.session.commit()
 
 def get_high_scores():
-    with app.app_context():
-        scores = HighScore.query.order_by(HighScore.round_number, HighScore.ranking).all()
-        result = {1: {}, 2: {}, 3: {}}
-        for score in scores:
-            timestamp_str = score.timestamp.strftime("%Y-%m-%d %H:%M:%S") if score.timestamp else "N/A"
-            result[score.round_number][score.ranking] = {
-                "room_name": score.room_name,
-                "score": score.score,
-                "timestamp": timestamp_str
-            }
-        return result
+    scores = HighScore.query.order_by(HighScore.round_number, HighScore.ranking).all()
+    result = {1: {}, 2: {}, 3: {}}
+    for score in scores:
+        timestamp_str = score.timestamp.strftime("%Y-%m-%d %H:%M:%S") if score.timestamp else "N/A"
+        result[score.round_number][score.ranking] = {
+            "room_name": score.room_name,
+            "score": score.score,
+            "timestamp": timestamp_str
+        }
+    return result
+
 
 def update_player_activity(sid):
     room = player_group.get(sid)
@@ -222,8 +222,8 @@ def on_join(data):
 
 
 @socketio.on('disconnect')
-def on_disconnect(sid):
-    #sid = request.sid
+def on_disconnect():
+    sid = request.sid
     room = player_group.get(sid)
     print(f"Client disconnected: {sid} from room {room}")
     if room and room in group_games:
@@ -529,7 +529,15 @@ def on_request_room_list():
 
 def update_room_list():
     room_list = {r: len(group_games[r]["players"]) for r in group_games if len(group_games[r]["players"]) > 0}
-    socketio.emit('room_list', {"rooms": room_list, "high_scores": get_high_scores()})
+
+    try:
+        high_scores = get_high_scores()
+    except Exception as e:
+        print("Error fetching high scores:", e)
+        high_scores = {}  # or {1: {}, 2: {}, 3: {}}
+
+    socketio.emit('room_list', {"rooms": room_list, "high_scores": high_scores})
+
 
 
 @socketio.on('start_round')
@@ -790,4 +798,5 @@ def search_engine_info():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
