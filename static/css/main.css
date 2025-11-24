@@ -1,18 +1,3 @@
-.ingredient {
-  font-size: clamp(1.5rem, 5vw, 2rem); /* Responsive emoji size */
-  margin: 5px;
-  padding: 5px;
-  cursor: pointer;
-  touch-action: manipulation; /* Improve touch response */
-}
-.ingredient.selected {
-  border: 2px solid #007bff;
-  border-radius: 4px;
-}
-.timer-container.oven.oven-active {
-  background: linear-gradient(145deg, #ff6666, #cc0000);
-  box-shadow: 0 0 10px #ff6666;
-}
 .emoji-wrapper {
   position: relative;
   display: inline-block;
@@ -32,15 +17,18 @@
 .undercooked .emoji {
   filter: sepia(1) hue-rotate(10deg) saturate(300%);
 }
-#built-pizzas .emoji, #oven .emoji {
+#built-pizzas .emoji,
+#oven .emoji {
   filter: sepia(1) hue-rotate(10deg) saturate(300%);
 }
 .burnt .emoji {
   filter: grayscale(1) brightness(0.3);
 }
-.invalid .emoji, .unmatched .emoji {
+.invalid .emoji,
+.unmatched .emoji {
   filter: grayscale(1) contrast(1.2);
 }
+
 .pizza-builder-container {
   border: 1px solid #4A4A4A;
   padding: 10px;
@@ -53,6 +41,7 @@
   border: 1px dashed #4A4A4A;
   padding: 10px;
 }
+
 .order-card {
   background-color: #e9ecef;
   border: 1px solid #ccc;
@@ -78,6 +67,7 @@
 .order-emoji {
   font-size: clamp(1.2rem, 4vw, 1.5rem);
 }
+
 .fork-me-on-github:hover .octo-arm {
   animation: octocat-wave 560ms ease-in-out;
 }
@@ -89,11 +79,10 @@
     animation: octocat-wave 560ms ease-in-out; /* Continuous animation */
   }
 }
+
 .is-invalid {
   border-color: #dc3545 !important;
 }
-
-
 
 /* Colour palette */
 :root {
@@ -113,17 +102,9 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
-/* Kanban columns as cards */
+/* Kanban columns layout */
 .gridcontainer {
   gap: 12px;
-}
-
-.gridcontainer > div {
-  background: var(--pizza-card);
-  border-radius: 12px;
-  padding: 10px 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
-  border: 1px solid rgba(0,0,0,0.03);
 }
 
 /* Headings inside the Kanban columns */
@@ -149,185 +130,282 @@
   background: linear-gradient(135deg, #ffc857, #ff7b00);
 }
 
-/* Ingredient tokens */
+/* Ingredient tokens – final version */
 .ingredient {
-  background: #ffffff;
+  font-size: clamp(1.4rem, 4.5vw, 1.8rem);
+  margin: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  touch-action: manipulation;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-  padding-inline: 10px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition:
-    transform 0.12s ease-out,
-    box-shadow 0.12s ease-out,
-    background 0.12s ease-out,
-    border-color 0.12s ease-out;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
 }
-
-.ingredient:hover,
+.ingredient:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.18);
+}
 .ingredient.selected {
-  transform: translateY(-1px) scale(1.05);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-  background: #fff7e6;
-  border-color: #ffc107;
+  border: 2px solid #CE0000;
+  box-shadow: 0 0 0 2px rgba(206,0,0,0.2);
 }
 
-/* Shared ingredient / pizza areas */
+/* Shared drop/pile zones */
 #prepared-pool,
 #pizza-builder,
-#pizza-builders-container,
-#built-pizzas,
+#pizza-builders-container .pizza-builder-dropzone,
 #oven,
+#built-pizzas,
 #completed,
-#wasted {
-  background: #f8f9fb;
+#wasted,
+#orders-list {
+  background: #f7f7fb;
   border-radius: 8px;
+  border: 2px dashed #b0b0c0 !important;
+  padding: 8px;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
-/* Primary action buttons */
+/* Hover feedback for zones */
+#prepared-pool:hover,
+#pizza-builder:hover,
+#pizza-builders-container .pizza-builder-dropzone:hover,
+#oven:hover,
+#built-pizzas:hover,
+#completed:hover,
+#wasted:hover {
+  box-shadow: 0 0 0 3px rgba(206,0,0,0.1);
+  transform: translateY(-1px);
+  border-color: #CE0000 !important;
+}
+
+/* Buttons */
 .btn-custom,
 #start-round,
 #submit-pizza,
 #oven-on,
 #oven-off {
   border-radius: 999px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
   text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
 }
-
-/* Subtle hover lift for all custom buttons */
 .btn-custom:hover,
 #start-round:hover,
 #submit-pizza:hover,
 #oven-on:hover,
 #oven-off:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.18);
+  filter: brightness(1.03);
+}
+/* Primary action colours */
+#start-round,
+#submit-pizza {
+  background: linear-gradient(135deg, #ffb347, #ff7b00);
+  border-color: #ff7b00;
+}
+#oven-on {
+  background: linear-gradient(135deg, #28a745, #1d7f33);
+  border-color: #1d7f33;
+}
+#oven-off {
+  background: linear-gradient(135deg, #dc3545, #b21f2d);
+  border-color: #b21f2d;
 }
 
-/* Timers: subtle glow + clearer label */
-.timer-container.stopwatch,
-.timer-container.oven {
+/* Timers */
+.timer-container.oven,
+.timer-container.stopwatch {
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  padding: 2vw
 }
-
-/* Oven on = stronger glow (you already toggle .oven-active) */
 .timer-container.oven.oven-active {
-  box-shadow: 0 0 16px rgba(255, 102, 102, 0.8);
+  background: radial-gradient(circle at 20% 20%, #ffcc80, #cc0000);
+  box-shadow: 0 0 18px rgba(255,100,50,0.7);
 }
 
-/* Message panel */
+/* Message panel – final version */
 #messages {
+  background-color: #050608;
   border-radius: 6px;
-  background: #050608;
-  border-color: #2f3136;
-  padding: 8px 12px;
+  border: 2px solid #1f272b;
+  padding: 8px 10px;
+  color: #7CFC00;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
 }
-
 #messages .title {
   font-size: 0.7rem;
   letter-spacing: 0.12em;
+  color: #00ff9c;
   opacity: 0.8;
 }
-
 #messages .content {
   margin-top: 4px;
-  color: #8fff8f;
-  font-size: 0.86rem;
+  max-height: 5rem;
+  overflow-y: auto;
 }
-/* Room table rows */
+
+/* Card-style panels for main areas */
+body {
+  background-color: rgba(223, 219, 229, 0.95);
+}
+#customer-orders,
+#game-area,
+.gridcontainer > div {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+}
+
+/* Section headings with emojis */
+.ingredients h4,
+.builders h3,
+.oven h5,
+.built h5,
+.completed h5,
+.wasted h5,
+#customer-orders h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
+}
+.ingredients h4::before { content: "🥫"; }
+.builders h3::before   { content: "👨‍🍳"; }
+.oven h5::before       { content: "🔥"; }
+.built h5::before      { content: "📦"; }
+.completed h5::before  { content: "✅"; }
+.wasted h5::before     { content: "🗑️"; }
+#customer-orders h4::before { content: "🧾"; }
+
+/* Room table */
 #room-table {
+  background: rgba(255,255,255,0.9);
   border-radius: 8px;
   overflow: hidden;
 }
-
+#room-table thead {
+  background: #f5f5fa;
+}
 #room-table tbody tr {
   cursor: pointer;
-  transition:
-    background 0.12s ease-out,
-    transform 0.12s ease-out;
+  transition: background 0.12s ease-out, transform 0.12s ease-out;
 }
-
 #room-table tbody tr:hover {
   background: #fff8e1;
   transform: translateY(-1px);
 }
 
-/* Join form inputs */
+/* Join form */
 #join-form .form-control {
   border-radius: 999px;
   border: 1px solid rgba(0,0,0,0.12);
   box-shadow: 0 2px 4px rgba(0,0,0,0.03) inset;
 }
-
 #join-form .form-control:focus {
   border-color: #ff7b00;
   box-shadow: 0 0 0 0.08rem rgba(255, 123, 0, 0.25);
 }
+#join-form .form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
 
-/* Room modal header layout feels a bit more “hero” */
+/* Room modal */
+.modal-content::before {
+  opacity: 0.25;
+}
+.pizzaman {
+  background: rgba(255,255,255,0.96);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  padding: 1rem 1.25rem;
+  max-width: 100%;
+}
 #roomModal .modal-header {
   border-bottom: none;
   align-items: stretch;
 }
-
 #roomModal .modal-title {
   line-height: 1.2;
 }
+
+/* Debrief modal */
 #debriefModal .modal-dialog {
   max-width: 520px;
 }
-
 #debriefModal .modal-content {
   border-radius: 16px;
   border: none;
   box-shadow: 0 16px 32px rgba(0,0,0,0.18);
 }
-
 #debriefModalBody p {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 0.25rem;
 }
-
 #debriefModalBody p strong {
   font-weight: 600;
   color: #444;
 }
-
 #debriefModalBody p span {
   font-family: 'Orbitron', sans-serif;
   font-size: 1rem;
 }
-
 /* Highlight good vs bad */
 #debrief-pizzas-completed,
 #debrief-fulfilled-orders {
   color: #198754;
 }
-
 #debrief-pizzas-wasted,
 #debrief-unmatched-pizzas,
 #debrief-remaining-orders {
   color: #dc3545;
 }
-/* Smooth hover / movement everywhere */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, box-shadow, transform, color;
-  transition-duration: 0.12s;
-  transition-timing-function: ease-out;
-}
 
-/* Slightly softer body background overlay over your tile pattern */
+/* Typography tweaks */
 body {
-  background-color: rgba(223, 219, 229, 0.95);
+  line-height: 1.5;
+}
+header h5 {
+  margin: 0;
+  font-size: 0.95rem;
 }
 
+/* Small screens */
+@media screen and (max-width: 768px) {
+  .gridcontainer > div {
+    margin-bottom: 8px;
+  }
+  header {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+}
 
+/* Oven buttons layout */
+.ovenbuttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
