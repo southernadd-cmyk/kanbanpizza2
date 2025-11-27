@@ -124,76 +124,132 @@ socket.on('connect', function() {
 socket.on('room_list', function(data) {
   var tbody = document.getElementById('room-table-body');
   tbody.innerHTML = '';
-
   var rooms = Object.keys(data.rooms);
+
   if (rooms.length === 0) {
     var row = document.createElement('tr');
     var cell = document.createElement('td');
-    cell.colSpan = 2;
-    cell.innerText = 'No rooms active';
+    cell.colSpan = 3;
+    cell.classList.add("text-center", "text-muted");
+    cell.innerText = 'No active rooms. Create one to start!';
     row.appendChild(cell);
     tbody.appendChild(row);
   } else {
     rooms.forEach(function(room) {
       var row = document.createElement('tr');
+
+      // 1. Room Name
       var nameCell = document.createElement('td');
-      nameCell.innerText = room;
+      nameCell.innerHTML = `<strong>${room}</strong>`;
+
+      // 2. Players Count
       var countCell = document.createElement('td');
-      countCell.innerText = data.rooms[room];
+      var count = data.rooms[room];
+      // Add a badge for visual flair
+      var badgeClass = count >= 5 ? "bg-danger" : "bg-success";
+      countCell.innerHTML = `<span class="badge ${badgeClass}">${count}/5 Players</span>`;
+
+      // 3. QR Code Image (In the table)
+      var qrCell = document.createElement('td');
+
+      // Generate the URL based on where the browser is currently running
+      var baseUrl = window.location.origin;
+      // Construct: https://site.com/?room=RoomName
+      var joinUrl = `${baseUrl}/?room=${encodeURIComponent(room)}`;
+
+      // Generate QR Image URL
+      var qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=0&data=${encodeURIComponent(joinUrl)}`;
+
+      var img = document.createElement('img');
+      img.src = qrApiUrl;
+      img.alt = "Scan to join " + room;
+      img.className = "img-thumbnail"; // Bootstrap styling
+      img.style.width = "80px";       // Keep it neat
+      img.style.height = "80px";
+      img.style.cursor = "pointer";   // Hint that it can be interacted with
+
+      // Optional: Click to enlarge (in case 80px is too small to scan)
+      img.onclick = function() {
+        var win = window.open(qrApiUrl.replace("100x100", "400x400"), '_blank');
+        win.focus();
+      };
+
+      qrCell.appendChild(img);
+
       row.appendChild(nameCell);
       row.appendChild(countCell);
+      row.appendChild(qrCell);
       tbody.appendChild(row);
     });
   }
+  renderHighScores(data.high_scores); // Extracted high score logic to function below for cleanliness
+});
 
-  // Display high scores in a table
+// Helper function to show the modal
+function showRoomQR(roomName) {
+    var baseUrl = window.location.origin;
+    // We only send the Room Name because we don't know the password here
+    var smartLink = `${baseUrl}/?room=${encodeURIComponent(roomName)}`;
+    var qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(smartLink)}`;
+
+    // Update Modal DOM
+    document.getElementById('qrRoomName').innerText = "Join: " + roomName;
+    document.getElementById('qr-image').src = qrApiUrl;
+
+    // Show Modal
+    var qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+    qrModal.show();
+}
+
+// (Optional) Helper to keep your socket listener clean
+function renderHighScores(high_scores) {
   var scoresDiv = document.getElementById('high-scores');
   scoresDiv.innerHTML = '<h3>Top Scores</h3>';
-
-  // Create table
   var table = document.createElement('table');
   table.className = 'table table-bordered';
-
-  // Table header
   var thead = document.createElement('thead');
-  thead.innerHTML = `
-    <tr>
-      <th>Round</th>
-      <th>1st</th>
-      <th>2nd</th>
-      <th>3rd</th>
-    </tr>
-  `;
+  thead.innerHTML = `<tr><th>Round</th><th>1st</th><th>2nd</th><th>3rd</th></tr>`;
   table.appendChild(thead);
-
-  // Table body
   var tbody = document.createElement('tbody');
+
   for (let round = 1; round <= 3; round++) {
     var row = document.createElement('tr');
-
-    // Round column
     var roundCell = document.createElement('td');
     roundCell.innerText = `Round ${round}`;
     row.appendChild(roundCell);
-
-    // 1st, 2nd, 3rd columns
     for (let rank = 1; rank <= 3; rank++) {
       var rankCell = document.createElement('td');
-      var scoreData = data.high_scores[round][rank];
+      var scoreData = high_scores[round] ? high_scores[round][rank] : null; // Safe check
       if (scoreData && scoreData.room_name) {
         rankCell.innerText = `${scoreData.room_name} (${scoreData.score})`;
       } else {
-        rankCell.innerText = 'No Teams logged yet';
+        rankCell.innerText = '-';
       }
       row.appendChild(rankCell);
     }
-
     tbody.appendChild(row);
   }
   table.appendChild(tbody);
-
   scoresDiv.appendChild(table);
-});
+}
+
+// Wait for the modal to fully show up before trying to focus the input
+var roomModalEl = document.getElementById('roomModal');
+if (roomModalEl) {
+    roomModalEl.addEventListener('shown.bs.modal', function () {
+        // If we came from a QR code (room is pre-filled)
+        const roomInput = document.getElementById("room-input");
+        const passwordInput = document.getElementById("password-input");
+
+        if (roomInput && roomInput.value !== "") {
+            // Focus the password field so the mobile keyboard opens
+            passwordInput.focus();
+
+            // Optional: Update the modal title to be more specific
+            document.querySelector('#roomModal .modal-title').innerText = "Join Room: " + roomInput.value;
+        }
+    });
+}
 socket.on('join_error', function(data) {
   const roomInput = document.getElementById("room-input");
   const passwordInput = document.getElementById("password-input");
