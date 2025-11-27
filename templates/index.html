@@ -308,17 +308,35 @@ color:#CE0000;
 
               <h3>Active Rooms</h3>
 
-              <table class="table table-striped" id="room-table">
-                <thead>
-                  <tr>
-                    <th>Room Name</th>
-                    <th>Players</th>
-                  </tr>
-                </thead>
-                <tbody id="room-table-body">
-                  <!-- Dynamically populated via JavaScript -->
-                </tbody>
-              </table>
+                <table class="table table-striped table-hover align-middle" id="room-table">
+                  <thead>
+                    <tr>
+                      <th>Room Name</th>
+                      <th>Players</th>
+                      <th style="width: 120px;">Scan to Join</th> <!-- Wider column -->
+                    </tr>
+                  </thead>
+                  <tbody id="room-table-body">
+                    <!-- JS populates this -->
+                  </tbody>
+                </table>
+
+                <!-- Keep the Generic QR Modal (Add this at bottom of index.html if not there) -->
+                <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-sm text-center">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="qrRoomName">Scan to Join</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <img id="qr-image" src="" class="img-fluid mb-2" alt="QR Code" />
+                        <p class="small text-muted">Scan to pre-fill Room Name.<br>You will need to enter the password.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
 		    <p><strong>Room Limits:</strong> Maximum 10 active rooms at a time. Each room can have up to 5 players.</p>
               <hr>
 		    <div id="high-scores" class="mt-3"></div>
@@ -449,9 +467,9 @@ color:#CE0000;
                 <tr><th>Time in Oven</th><th>Result</th><th>Points</th></tr>
               </thead>
               <tbody>
-                <tr style="background-color: #ffe6e6;"><td>&lt; 30s</td><td>Raw 🤢</td><td class="text-danger fw-bold">-10 (Waste)</td></tr>
-                <tr style="background-color: #e6fffa;"><td>30s – 45s</td><td>Perfect 😋</td><td class="text-success fw-bold">+10 (Score)</td></tr>
-                <tr style="background-color: #ffe6e6;"><td>&gt; 45s</td><td>Burnt 🥵</td><td class="text-danger fw-bold">-10 (Waste)</td></tr>
+                <tr style="background-color: #ffe6e6;"><td>&lt; 30s</td><td>Raw 🤢</td><td>-10 (Waste)</td></tr>
+                <tr style="background-color: #e6fffa;"><td>30s – 45s</td><td>Perfect 😋</td><td>+10 (Score)</td></tr>
+                <tr style="background-color: #ffe6e6;"><td>&gt; 45s</td><td>Burnt 🥵</td><td>-10 (Waste)</td></tr>
               </tbody>
             </table>
 			<div class="text-end">
@@ -593,14 +611,31 @@ color:#CE0000;
     // 4. Add 'active' class to the clicked button
     document.getElementById('tab-' + tabName + '-btn').classList.add('active');
   }
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+
+    if (roomParam) {
+        // 1. Pre-fill the Room Input
+        const roomInput = document.getElementById("room-input");
+        if (roomInput) {
+            roomInput.value = roomParam;
+            // Optional: Visual cue (light yellow background)
+            roomInput.style.backgroundColor = "#fff3cd";
+        }
+
+        // 2. Set a flag so when the socket connects, we know to focus the password
+        window.autoJoinRoom = roomParam;
+    }
+});
+
 </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'91c10bf55880b05e',t:'MTc0MTI1NTY1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
-
-
 
 
 
