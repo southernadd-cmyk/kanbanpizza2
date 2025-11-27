@@ -464,3 +464,13 @@ header h5 {
   animation: loading-pulse 1.4s ease-in-out infinite;
 }
 
+/* Override Primary Buttons to be Orange/Red */
+.btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #e64a19 !important;
+}
+
+/* Override Success Buttons (Submit) to be Basil Green */
+.btn-success {
+  background-color: #4caf50 !important;
+}
