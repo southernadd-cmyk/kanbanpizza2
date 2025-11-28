@@ -70,6 +70,8 @@ def sanitize_game_state_for_emit(game_state):
     clean_copy = dict(game_state)
     clean_copy.pop("round_timer_thread", None)
     clean_copy.pop("debrief_timer_thread", None)
+    # OPTIMIZATION: Don't send chart data 10 times a second
+    clean_copy.pop("lead_times", None) 
     return clean_copy
 
 def new_game_state(password=None):
@@ -798,5 +800,6 @@ def search_engine_info():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
