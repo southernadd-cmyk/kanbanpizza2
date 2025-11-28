@@ -561,23 +561,54 @@ function updateGameState(newState) {
     poolDiv.appendChild(div);
   });
 
-  function renderPizza(pizza, extraLabel) {
-    var div = document.createElement("div");
-    if (pizza.emoji) {
-      div.innerHTML = pizza.emoji;
-    } else {
-      div.innerText = "Pizza " + pizza.pizza_id;
-    }
-    if (extraLabel) {
-      var label = document.createElement("span");
-      label.innerText = extraLabel;
-      div.appendChild(label);
-    }
-    if (pizza.status) {
-      div.classList.add(pizza.status);
-    }
-    return div;
+function renderPizza(pizza, extraLabel) {
+  var container = document.createElement("div");
+  container.className = "d-flex align-items-center mb-2 p-2 border rounded bg-white";
+  if (pizza.status) container.classList.add(pizza.status); // keeps red/green tint
+
+  // 1. Create the Visual Pizza Div
+  var visual = document.createElement("div");
+  visual.className = "pizza-visual";
+
+  // Check Base & Sauce
+  if (pizza.ingredients && pizza.ingredients.sauce > 0) {
+    visual.classList.add("has-sauce");
   }
+
+  // Render Toppings
+  if (pizza.ingredients) {
+    let toppingCount = 0;
+
+    // Add Ham
+    for (let i = 0; i < (pizza.ingredients.ham || 0); i++) {
+        let span = document.createElement("span");
+        span.className = `topping-icon pos-${(toppingCount % 5) + 1}`;
+        span.innerText = "🥓";
+        // slight random offset to look organic
+        span.style.transform = `rotate(${Math.random() * 360}deg)`;
+        visual.appendChild(span);
+        toppingCount++;
+    }
+
+    // Add Pineapple
+    for (let i = 0; i < (pizza.ingredients.pineapple || 0); i++) {
+        let span = document.createElement("span");
+        span.className = `topping-icon pos-${(toppingCount % 5) + 1}`;
+        span.innerText = "🍍";
+        visual.appendChild(span);
+        toppingCount++;
+    }
+  }
+
+  container.appendChild(visual);
+
+  // 2. Text Details
+  var details = document.createElement("div");
+  details.innerHTML = `<strong>ID: ${pizza.pizza_id.slice(0,4)}</strong><br><small>${extraLabel}</small>`;
+  container.appendChild(details);
+
+  return container;
+}
 
   var builtDiv = document.getElementById("built-pizzas");
   builtDiv.innerHTML = "";
