@@ -916,47 +916,102 @@ function renderLeadTimeChart(labels, completedData, incompleteData) {
     });
 }
 
-// 1. Open the Modal and start polling
+/* =========================================
+   FACILITATOR DASHBOARD LOGIC
+   ========================================= */
+
+// 1. Global Variable for the timer
+var dashboardInterval = null;
+
+// 2. Function to Open Modal (Attached to Window for HTML access)
 window.openFacilitator = function() {
     // A. Close the Lobby (Room) Modal if it's open
     var lobbyEl = document.getElementById('roomModal');
-    var lobbyInstance = bootstrap.Modal.getInstance(lobbyEl);
-    if (lobbyInstance) {
+    if (lobbyEl) {
+        // use getOrCreateInstance to prevent errors if it wasn't fully initialized
+        var lobbyInstance = bootstrap.Modal.getOrCreateInstance(lobbyEl);
         lobbyInstance.hide();
     }
 
     // B. Get the Facilitator Modal
     var facEl = document.getElementById('facilitatorModal');
     if (!facEl) {
-        console.error("Facilitator modal not found in HTML");
+        console.error("Facilitator modal not found!");
         return;
     }
     
     // C. Open Facilitator Modal
-    // Use getOrCreateInstance to prevent duplicates
-    var modal = bootstrap.Modal.getOrCreateInstance(facEl);
-    modal.show();
+    var facInstance = bootstrap.Modal.getOrCreateInstance(facEl);
+    facInstance.show();
     
-    // Request data immediately
+    // D. Request Data immediately
     socket.emit('request_admin_dashboard');
     
-    // Start polling every 3 seconds
+    // E. Start Polling (Clear existing first to be safe)
     if (dashboardInterval) clearInterval(dashboardInterval);
+    
     dashboardInterval = setInterval(() => {
+        // Only poll if modal is actually visible
         if (facEl.classList.contains('show')) {
             socket.emit('request_admin_dashboard');
         } else {
-            clearInterval(dashboardInterval); 
+            // Safety: stop polling if class is gone
+            clearInterval(dashboardInterval);
         }
     }, 3000);
 };
 
-// Add a listener to re-open the Lobby when Facilitator view is closed
-document.getElementById('facilitatorModal').addEventListener('hidden.bs.modal', function () {
-    if (dashboardInterval) clearInterval(dashboardInterval);
+// 3. Handle Data from Server
+socket.on('admin_dashboard_update', function(data) {
+    const tbody = document.getElementById('facilitator-table-body');
+    if (!tbody) return;
     
-    // Optional: Re-open the lobby so you aren't stuck on a blank screen
-    var lobbyModal = new bootstrap.Modal(document.getElementById('roomModal'));
-    lobbyModal.show();
-    socket.emit('request_room_list');
+    tbody.innerHTML = '';
+    
+    if (!data.rooms || data.rooms.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No active rooms found.</td></tr>';
+        return;
+    }
+
+    data.rooms.forEach(room => {
+        const row = document.createElement('tr');
+        
+        let phaseBadge = 'bg-secondary';
+        if (room.phase === 'ROUND') phaseBadge = 'bg-success';
+        if (room.phase === 'DEBRIEF') phaseBadge = 'bg-warning text-dark';
+
+        row.innerHTML = `
+            <td class="text-start fw-bold">${room.room} <span class="badge bg-light text-dark border">R${room.round}</span></td>
+            <td><span class="badge ${phaseBadge}">${room.phase}</span></td>
+            <td class="fw-bold font-monospace">${room.time_left}s</td>
+            <td>${room.players}</td>
+            <td class="text-success fw-bold">${room.completed}</td>
+            <td class="text-danger fw-bold">${room.wasted}</td>
+            <td>${room.oven}</td>
+            <td>${room.built}</td>
+        `;
+        tbody.appendChild(row);
+    });
 });
+
+// 4. Listener: When Facilitator closes, Re-open Lobby
+// We wrap this in a check to ensure the element exists
+var facModalEl = document.getElementById('facilitatorModal');
+if (facModalEl) {
+    facModalEl.addEventListener('hidden.bs.modal', function () {
+        // Stop the polling timer
+        if (dashboardInterval) {
+            clearInterval(dashboardInterval);
+            dashboardInterval = null;
+        }
+        
+        // Re-open the Lobby Modal
+        var lobbyEl = document.getElementById('roomModal');
+        if (lobbyEl) {
+            var lobbyInstance = bootstrap.Modal.getOrCreateInstance(lobbyEl);
+            lobbyInstance.show();
+            // Refresh the room list
+            socket.emit('request_room_list');
+        }
+    });
+}
