@@ -110,6 +110,74 @@ async function filterRoomName(event) {
 
 document.getElementById("join-form").addEventListener("submit", filterRoomName);
 
+let cfdChartInstance;
+
+function renderCFD(historyData) {
+    const ctx = document.getElementById('cfdChart').getContext('2d');
+    
+    if (cfdChartInstance) cfdChartInstance.destroy();
+
+    // Prepare arrays
+    const labels = historyData.map(d => d.time + "s");
+    const dataDone = historyData.map(d => d.done);
+    const dataOven = historyData.map(d => d.oven); // Active in oven
+    const dataBuilt = historyData.map(d => d.built); // Waiting to enter oven
+    
+    // In a CFD, data is cumulative "Stacked".
+    // Chart.js 'fill: true' with 'stacked: true' handles the stacking visually.
+    
+    cfdChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Done',
+                    data: dataDone,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.5)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'In Oven',
+                    data: dataOven,
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.5)', // Red/Orange
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Built (Queue)',
+                    data: dataBuilt,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.5)', // Yellow
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    stacked: true, // This creates the Cumulative Flow effect
+                    beginAtZero: true,
+                    title: { display: true, text: 'Number of Pizzas' }
+                },
+                x: {
+                    title: { display: true, text: 'Time (Seconds)' }
+                }
+            },
+            plugins: {
+                tooltip: { mode: 'index', intersect: false },
+                title: { display: true, text: 'Work In Progress over Time' }
+            }
+        }
+    });
+}
+
+
 /* =========================================
    3. SOCKET CONNECTION HANDLERS
    ========================================= */
@@ -714,6 +782,13 @@ socket.on('round_ended', function(result) {
   document.getElementById("debrief-score").innerText = result.score;
   if (result.lead_times) {
     prepareChartData(result.lead_times);
+    }
+  if (result.cfd_data) {
+        // We use a timeout to let the modal render first, 
+        // otherwise the chart width might be 0
+        setTimeout(() => {
+            renderCFD(result.cfd_data);
+        }, 500);
     }
   if (state.round === 3) {
     document.getElementById("fulfilled-orders").style.display = "block";
