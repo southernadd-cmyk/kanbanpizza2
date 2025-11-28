@@ -124,10 +124,9 @@ async function filterRoomName(event) {
 document.getElementById("join-form").addEventListener("submit", filterRoomName);
 
 /* =========================================
-   4. GAMEPLAY ACTIONS 
+   4. GAMEPLAY ACTIONS
    ========================================= */
 
-// Explicitly attached to window to fix "prepareIngredient is not defined" error
 window.prepareIngredient = function(type) {
   socket.emit('prepare_ingredient', { ingredient_type: type });
 };
@@ -169,6 +168,7 @@ function updateBuilderDisplay() {
   });
 }
 
+// Button Listeners
 document.getElementById("submit-pizza").addEventListener("click", function() {
   if (state.round === 1 && builderIngredients.length === 0) {
     alert("No ingredients selected for pizza!");
@@ -330,7 +330,7 @@ function renderHighScores(high_scores) {
 }
 
 /* =========================================
-   7. RENDERERS
+   7. RENDERERS (Pizza & Builders)
    ========================================= */
 
 function renderPizza(pizza, extraLabel) {
@@ -444,6 +444,35 @@ if ('ontouchstart' in window) {
 
 var state = {};
 
+// THIS IS THE FUNCTION YOU WERE MISSING
+function updateVisibility() {
+  const pizzaBuilder = document.getElementById("pizza-builder");
+  const submitPizza = document.getElementById("submit-pizza");
+  const buildersContainer = document.getElementById("pizza-builders-container");
+  const builderHeading = document.getElementById("builder-heading");
+
+  if (state.round >= 1 && state.current_phase === "debrief" && state.round < state.max_rounds) {
+    pizzaBuilder.style.display = "none";
+    submitPizza.style.display = "none";
+    buildersContainer.style.display = "flex";
+    builderHeading.innerText = "Shared Pizza Builders";
+    renderPizzaBuilders(state.players);
+  } else if (state.round > 1) {
+    pizzaBuilder.style.display = "none";
+    submitPizza.style.display = "none";
+    buildersContainer.style.display = "flex";
+    builderHeading.innerText = "Shared Pizza Builders";
+    if (state.current_phase === "round") {
+      renderPizzaBuilders(state.players);
+    }
+  } else {
+    pizzaBuilder.style.display = "flex";
+    submitPizza.style.display = "inline-block";
+    buildersContainer.style.display = "none";
+    builderHeading.innerText = "Your Pizza Builder";
+  }
+}
+
 function updateGameState(newState) {
   state = newState;
   console.log("Game State:", state);
@@ -459,7 +488,7 @@ function updateGameState(newState) {
     document.getElementById("start-round").style.display = "inline-block";
   }
 
-  updateVisibility();
+  updateVisibility(); // Now defined!
 
   var ordersDiv = document.getElementById("customer-orders");
   var ordersList = document.getElementById("orders-list");
@@ -608,6 +637,7 @@ socket.on('round_started', function(data) {
 });
 
 socket.on('round_ended', function(result) {
+  // Update Text Stats
   document.getElementById("debrief-pizzas-completed").innerText = result.completed_pizzas_count;
   document.getElementById("debrief-pizzas-wasted").innerText = result.wasted_pizzas_count;
   document.getElementById("debrief-pizzas-unsold").innerText = result.unsold_pizzas_count;
@@ -649,7 +679,6 @@ socket.on('round_ended', function(result) {
   // Force reset tabs to summary
   var triggerFirstTab = document.querySelector('#debriefTabs button[data-bs-target="#tab-summary"]');
   if(triggerFirstTab) {
-      // Safely check for tab instance or create new
       var tabInstance = bootstrap.Tab.getInstance(triggerFirstTab);
       if(!tabInstance) tabInstance = new bootstrap.Tab(triggerFirstTab);
       tabInstance.show();
@@ -706,6 +735,35 @@ socket.on('time_response', function(data) {
   else { document.getElementById("timer").innerText = "Round Time:"; }
   document.getElementById("oven-timer").innerText = "Oven Time:\n" + data.ovenTime + " sec";
 });
+
+// Modal Handlers (Instructions)
+var modalEl = document.getElementById("modal");
+var modal = new bootstrap.Modal(modalEl);
+var instBtn = document.getElementById("instructions-btn");
+if(instBtn) instBtn.addEventListener("click", () => modal.show());
+var instBtn0 = document.getElementById("instructions-btn0");
+if(instBtn0) instBtn0.addEventListener("click", () => modal.show());
+var closeBtn = document.getElementById("modal-close");
+if(closeBtn) closeBtn.addEventListener("click", () => modal.hide());
+
+// Listeners for Chart Tabs
+var ltTab = document.getElementById('leadtime-tab');
+if (ltTab) {
+    ltTab.addEventListener('shown.bs.tab', function (e) {
+        if (lastLeadTimeData) {
+            renderLeadTimeChart(lastLeadTimeData); 
+        }
+    });
+}
+
+var cfdTab = document.getElementById('cfd-tab');
+if (cfdTab) {
+    cfdTab.addEventListener('shown.bs.tab', function (e) {
+        if (lastCFDData) {
+            renderCFD(lastCFDData); 
+        }
+    });
+}
 
 /* =========================================
    10. CHARTS
@@ -805,25 +863,6 @@ function renderCFD(historyData) {
                 tooltip: { mode: 'index', intersect: false },
                 title: { display: true, text: 'Work In Progress over Time' }
             }
-        }
-    });
-}
-
-// Chart Tab Listeners
-var ltTab = document.getElementById('leadtime-tab');
-if (ltTab) {
-    ltTab.addEventListener('shown.bs.tab', function (e) {
-        if (lastLeadTimeData) {
-            renderLeadTimeChart(lastLeadTimeData); 
-        }
-    });
-}
-
-var cfdTab = document.getElementById('cfd-tab');
-if (cfdTab) {
-    cfdTab.addEventListener('shown.bs.tab', function (e) {
-        if (lastCFDData) {
-            renderCFD(lastCFDData); 
         }
     });
 }
