@@ -610,19 +610,36 @@ function renderPizza(pizza, extraLabel) {
   return container;
 }
 
-  var builtDiv = document.getElementById("built-pizzas");
-  builtDiv.innerHTML = "";
-  state.built_pizzas.forEach(function(pizza) {
+// Inside updateGameState...
+var builtDiv = document.getElementById("built-pizzas");
+builtDiv.innerHTML = "";
+
+// Check if Oven is full (The Bottleneck)
+const isOvenFull = state.oven.length >= state.max_pizzas_in_oven;
+
+state.built_pizzas.forEach(function(pizza) {
     var div = renderPizza(pizza, "");
     var btn = document.createElement("button");
-    btn.className = "btn btn-sm btn-outline-primary ms-2";
-    btn.innerText = "Move to Oven";
-    btn.onclick = function() {
-      socket.emit('move_to_oven', { pizza_id: pizza.pizza_id });
-    };
+
+    if (isOvenFull) {
+        // Bottleneck Mode: Disable the button visually
+        btn.className = "btn btn-sm btn-secondary ms-2 disabled";
+        btn.innerText = "Oven Full (Blocked)";
+        btn.disabled = true;
+        // Optional: Add a "blocked" style to the pizza card itself?
+        div.style.opacity = "0.7";
+    } else {
+        // Normal Mode
+        btn.className = "btn btn-sm btn-outline-primary ms-2";
+        btn.innerText = "Move to Oven";
+        btn.onclick = function() {
+            socket.emit('move_to_oven', { pizza_id: pizza.pizza_id });
+        };
+    }
+
     div.appendChild(btn);
     builtDiv.appendChild(div);
-  });
+});
 
   var ovenDiv = document.getElementById("oven");
   ovenDiv.innerHTML = "";
