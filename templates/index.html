@@ -151,6 +151,35 @@ color:#CE0000;
 	  <p class="loading-text">Firing up the oven…</p>
 	</div>
 </div>
+
+<!-- QR/Link Join Modal -->
+<div class="modal fade" id="qrAuthModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <!-- We will inject the Room Name here via JS -->
+        <h5 class="modal-title">Join Room: <span id="qr-room-name-display" class="fw-bold">...</span></h5>
+      </div>
+      <div class="modal-body">
+        <p>Please enter the password to join this room.</p>
+        
+        <form id="qr-join-form">
+          <div class="mb-3">
+            <label for="qr-password-input" class="form-label fw-bold">Password</label>
+            <input type="text" class="form-control form-control-lg" id="qr-password-input" placeholder="e.g. pizza123" required autocomplete="off">
+            <div class="invalid-feedback" id="qr-feedback">
+              Incorrect password or room full.
+            </div>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary btn-lg">Enter Room 🚀</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="cancelQrJoin()">Cancel / Go to Lobby</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 	
 <div class="container game-container">
     <header class="d-flex justify-content-between align-items-center">
@@ -238,6 +267,8 @@ color:#CE0000;
       </div>
     </main>
   </div>
+
+	
 
   <div class="modal" tabindex="-1" id="roomModal">
     <div class="modal-dialog modal-lg">
@@ -636,6 +667,7 @@ color:#CE0000;
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'91c10bf55880b05e',t:'MTc0MTI1NTY1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
+
 
 
 
