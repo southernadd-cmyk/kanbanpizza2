@@ -587,60 +587,87 @@ color:#CE0000;
   </div>
 </div>
 
-  <div class="modal fade" id="debriefModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="debriefModal" tabindex="-1">
+    <!-- Added modal-xl for extra width -->
+    <div class="modal-dialog modal-xl">
       <div class="modal-content p-3">
         <div class="modal-header">
           <h5 class="modal-title">End of Round Summary</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" id="debriefModalBody">
   
-  <!-- Tabs -->
-  <ul class="nav nav-tabs mb-3" id="debriefTabs" role="tablist">
-    <li class="nav-item">
-      <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#tab-summary" type="button">📊 Summary</button>
-    </li>
-    <li class="nav-item">
-      <button class="nav-link" id="cfd-tab" data-bs-toggle="tab" data-bs-target="#tab-cfd" type="button">🌊 Flow (CFD)</button>
-    </li>
-  </ul>
+          <!-- Navigation Tabs -->
+          <ul class="nav nav-tabs mb-3" id="debriefTabs" role="tablist">
+            <li class="nav-item">
+              <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" data-bs-target="#tab-summary" type="button">📊 Scoreboard</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="leadtime-tab" data-bs-toggle="tab" data-bs-target="#tab-leadtime" type="button">⏱️ Lead Time Chart</button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" id="cfd-tab" data-bs-toggle="tab" data-bs-target="#tab-cfd" type="button">🌊 CFD Chart</button>
+            </li>
+          </ul>
 
-  <div class="tab-content">
-    
-    <!-- Tab 1: Existing Content -->
-    <div class="tab-pane fade show active" id="tab-summary">
-        <p><strong>Pizzas Completed:</strong> <span id="debrief-pizzas-completed">0</span></p>
-          <p><strong>Pizzas Wasted:</strong> <span id="debrief-pizzas-wasted">0</span></p>
-          <p><strong>Uncooked Pizzas:</strong> <span id="debrief-pizzas-unsold">0</span></p>
-          <p><strong>Leftover Ingredients:</strong> <span id="debrief-ingredients-left">0</span></p>
-          <p id="fulfilled-orders" style="display: none;"><strong>Fulfilled Orders:</strong> <span id="debrief-fulfilled-orders">0</span></p>
-          <p id="remaining-orders" style="display: none;"><strong>Remaining Orders:</strong> <span id="debrief-remaining-orders">0</span></p>
-          <p id="unmatched-pizzas" style="display: none;"><strong>Unmatched Pizzas:</strong> <span id="debrief-unmatched-pizzas">0</span></p>
-          <p><strong>Score:</strong> <span id="debrief-score">0</span></p>
-          <hr>
-                  <div>
-            <h5>Lead Time Chart</h5>
-            <canvas id="leadTimeChart"></canvas>
+          <div class="tab-content">
+            
+            <!-- Tab 1: Scoreboard -->
+            <div class="tab-pane fade show active" id="tab-summary">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="lead"><strong>Score:</strong> <span id="debrief-score" class="display-6 fw-bold">0</span></p>
+                        <hr>
+                        <p><strong>✅ Pizzas Completed:</strong> <span id="debrief-pizzas-completed" class="text-success fw-bold">0</span></p>
+                        <p><strong>🗑️ Pizzas Wasted:</strong> <span id="debrief-pizzas-wasted" class="text-danger fw-bold">0</span></p>
+                        <p><strong>🛑 Uncooked (WIP):</strong> <span id="debrief-pizzas-unsold" class="text-warning fw-bold">0</span></p>
+                        <p><strong>🥫 Leftover Ingredients:</strong> <span id="debrief-ingredients-left">0</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="fulfilled-orders" style="display: none;">
+                            <p><strong>✨ Fulfilled Orders:</strong> <span id="debrief-fulfilled-orders" class="text-success">0</span></p>
+                        </div>
+                        <div id="remaining-orders" style="display: none;">
+                            <p><strong>📉 Remaining Orders:</strong> <span id="debrief-remaining-orders" class="text-danger">0</span></p>
+                        </div>
+                        <div id="unmatched-pizzas" style="display: none;">
+                            <p><strong>❓ Unmatched Builds:</strong> <span id="debrief-unmatched-pizzas" class="text-danger">0</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-light rounded border">
+                    <p class="mb-1"><strong id="debrief-question"></strong></p>
+                    <p class="text-muted small fst-italic mb-0" id="debrief-quote"></p>
+                </div>
+            </div>
+
+            <!-- Tab 2: Lead Time Chart (New Dedicated Tab) -->
+            <div class="tab-pane fade" id="tab-leadtime">
+                <!-- Wrapper to control height -->
+                <div style="position: relative; height: 50vh; width: 100%;">
+                    <canvas id="leadTimeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tab 3: CFD Chart -->
+            <div class="tab-pane fade" id="tab-cfd">
+                <p class="small text-muted mb-2">Ideally, bands should be parallel. Expanding bands = Bottlenecks.</p>
+                <!-- Wrapper to control height -->
+                <div style="position: relative; height: 50vh; width: 100%;">
+                    <canvas id="cfdChart"></canvas>
+                </div>
+            </div>
+            
+          </div>
         </div>
-    </div>
-
-    <!-- Tab 2: New CFD -->
-    <div class="tab-pane fade" id="tab-cfd">
-        <h5>Cumulative Flow Diagram</h5>
-        <p class="small text-muted">Ideally, the bands should be parallel. Expanding bands = Bottlenecks.</p>
-        <canvas id="cfdChart" style="max-height: 300px;"></canvas>
-    </div>
-    
-  </div>
-
-  <hr>
-  <p><em class="text-muted" id="debrief-question"></em></p>
-  <p><em class="text-muted" id="debrief-quote"></em></p>
-</div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
       </div>
     </div>
   </div>
 
+	
 	<!-- Facilitator Dashboard Modal -->
 <div class="modal fade" id="facilitatorModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-xl">
@@ -743,6 +770,7 @@ color:#CE0000;
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'91c10bf55880b05e',t:'MTc0MTI1NTY1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
+
 
 
 
