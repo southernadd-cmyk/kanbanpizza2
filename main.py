@@ -97,9 +97,28 @@ def new_game_state(password=None):
         "lead_times": [],
         "password": password,
         "round_timer_thread": None,  
-        "debrief_timer_thread": None  
+        "debrief_timer_thread": None,
+        "cfd_history": []
     }
 
+def record_cfd_snapshot(room):
+    game_state = group_games.get(room)
+    if not game_state: return
+    
+    # Calculate relative time in round (e.g., 10s, 15s...)
+    elapsed = 0
+    if game_state["round_start_time"]:
+        elapsed = int(time.time() - game_state["round_start_time"])
+    
+    snapshot = {
+        "time": elapsed,
+        "built": len(game_state["built_pizzas"]),
+        "oven": len(game_state["oven"]),
+        "done": len(game_state["completed_pizzas"]), # "Done" is cumulative
+        "wasted": len(game_state["wasted_pizzas"])   # Optional layer
+    }
+    game_state["cfd_history"].append(snapshot)
+    
 
 def save_high_score(room, round_number, score):
     with app.app_context():
@@ -616,7 +635,20 @@ def generate_customer_orders(round_duration):
 
 
 def round_timer(duration, room):
-    eventlet.sleep(duration)
+    # Split the sleep into 5-second intervals to record data
+    steps = int(duration / 5)
+    for _ in range(steps):
+        if shutdown_flag: return
+        eventlet.sleep(5)
+        record_cfd_snapshot(room) # <--- Record Data
+        
+        # Optional: Check if game ended early?
+        
+    # Handle remainder time if any
+    remainder = duration % 5
+    if remainder > 0:
+        eventlet.sleep(remainder)
+        
     if not shutdown_flag:
         end_round(room)
 
@@ -687,14 +719,16 @@ def end_round(room):
         "unsold_pizzas_count": unsold_count,
         "ingredients_left_count": leftover_ingredients,
         "score": score,
-        "lead_times": game_state["lead_times"]
+        "lead_times": game_state["lead_times"],
+        "cfd_data": game_state["cfd_history"]
     }
+
     if game_state["round"] == 3:
         result["fulfilled_orders_count"] = fulfilled_orders
         result["remaining_orders_count"] = remaining_orders
         result["unmatched_pizzas_count"] = unmatched_count
 
-    
+    game_state["cfd_history"] = []
     game_state["last_updated"] = time.time()
     socketio.emit('game_state', sanitize_game_state_for_emit(game_state), room=room)
     socketio.emit('round_ended', result, room=room)
@@ -835,6 +869,7 @@ def on_request_admin_dashboard():
     
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
