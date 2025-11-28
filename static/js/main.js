@@ -737,6 +737,13 @@ socket.on('round_ended', function(result) {
 
   var debriefModal = new bootstrap.Modal(document.getElementById('debriefModal'), {});
   debriefModal.show();
+    if (result.score > 0) {
+     // Simple blast
+     confetti({
+         particleCount: 150,
+         spread: 70,
+         origin: { y: 0.6 }
+     });
   updateVisibility();
 });
 
