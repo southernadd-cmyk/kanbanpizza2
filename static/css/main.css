@@ -67,6 +67,9 @@
 .order-emoji {
   font-size: clamp(1.2rem, 4vw, 1.5rem);
 }
+.fork-me-on-github {
+    overflow: hidden !important;
+}
 
 .fork-me-on-github:hover .octo-arm {
   animation: octocat-wave 560ms ease-in-out;
