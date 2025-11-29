@@ -532,15 +532,10 @@ header h5 {
   opacity: 1 !important;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
-/* Kill the window scrollbar completely */
-html {
-  height: 100%;
-  overflow-y: hidden !important;  /* no vertical page scroll */
-  overflow-x: hidden !important;  /* safety */
+.modal-backdrop {
+  position: fixed !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  overflow: hidden !important;
 }
 
