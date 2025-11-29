@@ -530,3 +530,8 @@ header h5 {
   opacity: 1 !important;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
