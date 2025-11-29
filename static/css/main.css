@@ -100,8 +100,16 @@
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow: var(--pizza-shadow);
   background: rgba(255, 255, 255, 0.96);
-}
 
+    /* Change margin: 10px; to this: */
+    margin: 10px auto; /* Keeps side margins, but you might still have issues. */
+    
+    /* BETTER FIX: */
+    margin: 0 auto;
+    max-width: 98%; /* Creates the gap visually without pushing height */
+    margin-top: 10px; /* Only top margin */
+    min-height: calc(100vh - 20px); /* Subtract margin from height */
+}
 /* Kanban columns layout */
 .gridcontainer {
   gap: 12px;
