@@ -550,7 +550,7 @@ function updateGameState(newState) {
 
 // Built Pizzas
   console.log("DEBUG — Oven state:", {
-    is_oven_on: state.is_oven_on,
+    is_oven_on: state.oven_on,
     oven: state.oven,
     max: state.max_pizzas_in_oven
 }); 
@@ -561,7 +561,7 @@ function updateGameState(newState) {
   const isOvenFull = state.oven.length >= state.max_pizzas_in_oven;
   
   // This reads the actual state from the server
-  const isOvenOn = state.is_oven_on == true; 
+  const isOvenOn = state.oven_on === true; 
 
   state.built_pizzas.forEach(function(pizza) {
     var div = renderPizza(pizza, "");
