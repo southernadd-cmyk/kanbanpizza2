@@ -549,6 +549,7 @@ function updateGameState(newState) {
   });
 
 // Built Pizzas
+   
   console.log("DEBUG — Oven state:", {
     is_oven_on: state.oven_on,
     oven: state.oven,
