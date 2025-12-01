@@ -549,6 +549,11 @@ function updateGameState(newState) {
   });
 
 // Built Pizzas
+  console.log("DEBUG — Oven state:", {
+    is_oven_on: state.is_oven_on,
+    oven: state.oven,
+    max: state.max_pizzas_in_oven
+}); 
   var builtDiv = document.getElementById("built-pizzas");
   builtDiv.innerHTML = "";
   
