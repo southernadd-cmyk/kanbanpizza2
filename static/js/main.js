@@ -556,7 +556,7 @@ function updateGameState(newState) {
   const isOvenFull = state.oven.length >= state.max_pizzas_in_oven;
   
   // This reads the actual state from the server
-  const isOvenOn = state.is_oven_on === true; 
+  const isOvenOn = state.is_oven_on == true; 
 
   state.built_pizzas.forEach(function(pizza) {
     var div = renderPizza(pizza, "");
