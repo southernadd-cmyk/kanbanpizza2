@@ -26,7 +26,7 @@
   filter: sepia(1) hue-rotate(10deg) saturate(300%);
 }
 .burnt .emoji {
-  filter: grayscale(1) brightness(0.3);
+  filter: grayscale(1) brightness(0.3); 
 }
 .invalid .emoji,
 .unmatched .emoji {
