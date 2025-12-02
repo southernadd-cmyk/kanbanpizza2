@@ -180,7 +180,7 @@ body {
   padding: 8px;
   margin: 5px;
   width: clamp(140px, 30vw, 180px);
-  height: clamp(100px, 25vw, 120px);
+  height: clamp(140px, 25vw, 120px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
