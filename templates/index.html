@@ -25,9 +25,7 @@
   <meta name="twitter:title" content="Kanban Pizza - Agile Workflow Game">
   <meta name="twitter:description" content="Learn Kanban and Agile through a fun pizza-making game. Play now!">
   <meta name="twitter:image" content="https://raw.githubusercontent.com/southernadd-cmyk/kanbanpizza2/refs/heads/main/static/logo2.svg">
-<!-- Add these before main.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
 
   <!-- Preloading assets -->
 	<link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Sigmar&display=swap" as="style" onload="this.rel='stylesheet'">
@@ -47,7 +45,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Sigmar&display=swap" rel="stylesheet">
-  <script type="text/javascript">
+  <!-- Add these before main.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+
+    <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
@@ -254,8 +257,6 @@ color:#CE0000;
           <div class="builders">
             <h3 id="builder-heading">Your Pizza Builder</h3>
             <div id="pizza-builder"
-                 ondrop="dropToBuilder(event)"
-                 ondragover="allowDrop(event)"
                  class="flex-wrap border p-2 mb-3"
                  style="min-height: 100px;border: solid #4A4A4A!important; display: flex;"></div>
             <button id="submit-pizza" class="btn btn-primary btn-custom" style="display: none;">Submit Pizza</button>
@@ -783,44 +784,3 @@ color:#CE0000;
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'91c10bf55880b05e',t:'MTc0MTI1NTY1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
