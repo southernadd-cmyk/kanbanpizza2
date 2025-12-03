@@ -591,5 +591,43 @@ def generate_customer_orders(round_duration):
         orders.append(order)
     return orders
 
+# ... inside main.py ...
+
+@app.route('/health')
+def health_check():
+    """
+    1. Tells Render the app is running.
+    2. Pings Redis to keep the connection pool active.
+    3. Pings DB to keep the connection active.
+    """
+    status = {
+        "app": "running",
+        "redis": "unknown",
+        "db": "unknown"
+    }
+    http_code = 200
+
+    # 1. Check Redis Connection
+    try:
+        if r.ping():
+            status["redis"] = "connected"
+    except Exception as e:
+        status["redis"] = f"error: {str(e)}"
+        http_code = 500
+
+    # 2. Check Database Connection (Optional but recommended)
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        status["db"] = "connected"
+    except Exception as e:
+        status["db"] = f"error: {str(e)}"
+        # We don't change http_code to 500 here to avoid failing deployment
+        # if DB is just momentarily slow, but you can if strictness is needed.
+
+    return status, http_code
+
+
+
 if __name__ == '__main__':
     socketio.run(app)
+
