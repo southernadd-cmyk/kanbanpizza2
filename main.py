@@ -8,8 +8,34 @@ from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 import os
 
+def get_game_state(room):
+    """Fetch game state from Redis"""
+    raw_data = r.get(f"room:{room}")
+    if raw_data:
+        state = json.loads(raw_data)
+        # We don't store threads in Redis, so we set them to None on load
+        state["round_timer_thread"] = None
+        state["debrief_timer_thread"] = None
+        return state
+    return None
+
+def save_game_state(room, state):
+    """Save game state to Redis"""
+    # Create a clean copy to save (exclude thread objects)
+    clean_state = state.copy()
+    clean_state.pop("round_timer_thread", None)
+    clean_state.pop("debrief_timer_thread", None)
+    
+    # Save to Redis with a 24-hour expiration (86400 seconds)
+    r.set(f"room:{room}", json.dumps(clean_state), ex=86400)
+
+
 app = Flask(__name__)
 Compress(app)
+
+redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+r = redis.from_url(redis_url)
+
 
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', ping_timeout=60, ping_interval=25)
@@ -870,6 +896,7 @@ def on_request_admin_dashboard():
     
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
