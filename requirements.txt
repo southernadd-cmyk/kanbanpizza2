@@ -8,5 +8,7 @@ flask_sqlalchemy
 gunicorn
 eventlet
 redis
+requests
+
 
 
