@@ -601,7 +601,45 @@ def generate_customer_orders(round_duration):
         orders.append(order)
     return orders
 
-# ... inside main.py ...
+def reset_round(room):
+    game_state = get_game_state(room)
+    if not game_state:
+        return
+
+    # Advance round or wrap back to 1
+    if game_state["round"] >= game_state["max_rounds"]:
+        game_state["round"] = 1
+    else:
+        game_state["round"] += 1
+
+    # Reset phase and timers
+    game_state["current_phase"] = "waiting"
+    game_state["round_start_time"] = None
+    game_state["debrief_start_time"] = None
+    game_state["oven_on"] = False
+    game_state["oven_timer_start"] = None
+
+    # Clear per-round objects
+    game_state["prepared_ingredients"] = []
+    game_state["built_pizzas"] = []
+    game_state["oven"] = []
+    game_state["completed_pizzas"] = []
+    game_state["wasted_pizzas"] = []
+    game_state["customer_orders"] = []
+    game_state["pending_orders"] = []
+    game_state["lead_times"] = []
+    game_state["cfd_history"] = []
+
+    # Clear builder ingredients for all players
+    for sid in game_state["players"]:
+        game_state["players"][sid]["builder_ingredients"] = []
+
+    game_state["last_updated"] = time.time()
+    save_game_state(room, game_state)
+
+    # Tell clients the round has been reset
+    socketio.emit('game_reset', sanitize_game_state_for_emit(game_state), room=room)
+
 
 @app.route('/health')
 def health_check():
@@ -659,6 +697,7 @@ def uptime_status():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
