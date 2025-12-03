@@ -170,11 +170,26 @@ def get_high_scores():
 
 def update_player_activity(sid):
     room = get_room_for_sid(sid)
-    if room:
-        game_state = get_game_state(room)
-        if game_state and sid in game_state["players"]:
-            game_state["players"][sid]["last_activity"] = time.time()
-            save_game_state(room, game_state)
+    if not room:
+        return
+
+    state_json = r.get(f"room:{room}")
+    if not state_json:
+        return
+
+    game_state = json.loads(state_json)
+
+    if sid in game_state.get("players", {}):
+        # Update ONLY player activity — do NOT modify room last_updated
+        game_state["players"][sid]["last_activity"] = time.time()
+
+        # Save back WITHOUT touching last_updated
+        game_state_clean = game_state.copy()
+        game_state_clean.pop("round_timer_thread", None)
+        game_state_clean.pop("debrief_timer_thread", None)
+
+        r.set(f"room:{room}", json.dumps(game_state_clean), ex=86400)
+
 
 def update_room_list():
     keys = r.keys("room:*")
@@ -738,6 +753,7 @@ def uptime_status():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
