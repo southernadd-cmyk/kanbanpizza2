@@ -301,6 +301,14 @@ def on_time_request():
         return
 
     current_time = time.time()
+    # CHECK: Did the round time run out while we weren't looking?
+    if game_state["current_phase"] == "round" and game_state["round_start_time"]:
+        elapsed = current_time - game_state["round_start_time"]
+        if elapsed >= game_state["round_duration"]:
+            # Trigger end round manually if timer expired
+            end_round(room)
+            return # Stop here
+            
     roundTimeRemaining = 0
     if game_state["current_phase"] == "round" and game_state["round_start_time"]:
         elapsed = current_time - game_state["round_start_time"]
@@ -577,7 +585,18 @@ def on_request_room_list():
 
 
 def update_room_list():
-    room_list = {r: len(group_games[r]["players"]) for r in group_games if len(group_games[r]["players"]) > 0}
+       # Scan Redis for keys starting with "room:"
+    room_keys = r.keys("room:*")
+    room_list = {}
+    
+    for key in room_keys:
+        # key comes back as bytes, e.g., b'room:PizzaRoom1'
+        room_name = key.decode("utf-8").split(":", 1)[1]
+        
+        # Load state to count players
+        state = get_game_state(room_name)
+        if state:
+            room_list[room_name] = len(state["players"])
 
     try:
         high_scores = get_high_scores()
@@ -897,6 +916,7 @@ def on_request_admin_dashboard():
     
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
