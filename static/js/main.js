@@ -678,8 +678,10 @@
         bootstrap.Modal.getOrCreateInstance(document.getElementById('roomModal')).hide();
         const facEl = document.getElementById('facilitatorModal');
         new bootstrap.Modal(facEl).show();
+        openUptimeModal();
         State.socket.emit('request_admin_dashboard');
         State.dashboardInterval = setInterval(() => State.socket.emit('request_admin_dashboard'), 3000);
+        
     };
     window.closeFacilitator = () => {
     const facModal = bootstrap.Modal.getInstance(document.getElementById('facilitatorModal'));
@@ -698,4 +700,31 @@
 };
 
 
+function openUptimeModal() {
+    fetch("/uptime")
+        .then(res => res.json())
+        .then(data => {
+            const monitor = data.monitors[0]; // or loop if multiple
+
+            const statusMap = {
+                0: "Paused",
+                1: "Not Checked Yet",
+                2: "Up",
+                8: "Seems Down",
+                9: "Down"
+            };
+
+            document.getElementById("uptime-content").innerHTML = `
+                <div class="card p-3">
+                    <h5>${monitor.friendly_name}</h5>
+                    <p>Status: <strong>${statusMap[monitor.status]}</strong></p>
+                    <p>Uptime (24h): ${monitor.all_time_uptime_ratio}%</p>
+                </div>
+            `;
+        })
+        .catch(() => {
+            document.getElementById("uptime-content").innerText = "Unable to load status.";
+        });
+}
+    
 })();
