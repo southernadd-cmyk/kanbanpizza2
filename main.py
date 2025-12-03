@@ -11,6 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import json
 import redis
+from sqlalchemy import text 
 
 app = Flask(__name__)
 Compress(app)
@@ -630,4 +631,5 @@ def health_check():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
