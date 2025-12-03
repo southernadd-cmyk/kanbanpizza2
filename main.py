@@ -368,6 +368,7 @@ def on_prepare_ingredient(data):
 @socketio.on('take_ingredient')
 def on_take_ingredient(data):
     room = get_room_for_sid(request.sid)
+    update_player_activity(request.sid)
     if not room: return
     game_state = get_game_state(room)
     if not game_state or game_state["current_phase"] != "round": return
@@ -387,6 +388,7 @@ def on_take_ingredient(data):
 @socketio.on('build_pizza')
 def on_build_pizza(data):
     room = get_room_for_sid(request.sid)
+    update_player_activity(request.sid)
     if not room: return
     game_state = get_game_state(room)
     if not game_state or game_state["current_phase"] != "round": return
@@ -444,6 +446,7 @@ def on_build_pizza(data):
 @socketio.on('move_to_oven')
 def on_move_to_oven(data):
     room = get_room_for_sid(request.sid)
+    update_player_activity(request.sid)
     if not room: return
     game_state = get_game_state(room)
     if not game_state: return
@@ -469,6 +472,7 @@ def on_move_to_oven(data):
 @socketio.on('toggle_oven')
 def toggle_oven(data):
     room = get_room_for_sid(request.sid)
+    update_player_activity(request.sid)
     if not room: return
     game_state = get_game_state(room)
     if not game_state: return
@@ -511,6 +515,7 @@ def toggle_oven(data):
 @socketio.on('start_round')
 def on_start_round(data):
     room = get_room_for_sid(request.sid)
+    update_player_activity(request.sid)
     if not room: return
     game_state = get_game_state(room)
     if not game_state or game_state["current_phase"] != "waiting": return
@@ -754,6 +759,7 @@ def uptime_status():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
