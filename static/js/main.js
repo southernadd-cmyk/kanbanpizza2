@@ -472,9 +472,6 @@
         const s = State.socket;
 
 
-        s.on('admin_dashboard_update', function(data) { const tbody = document.getElementById('facilitator-table-body'); if (!tbody) return; tbody.innerHTML = ''; if (!data.rooms || data.rooms.length === 0) { tbody.innerHTML = '<tr><td colspan="8" class="text-muted">No active rooms found.</td></tr>'; return; } data.rooms.forEach(room => { const row = document.createElement('tr'); let phaseBadge = 'bg-secondary'; if (room.phase === 'ROUND') phaseBadge = 'bg-success'; if (room.phase === 'DEBRIEF') phaseBadge = 'bg-warning text-dark'; row.innerHTML = <td class="text-start fw-bold">${room.room} <span class="badge bg-light text-dark border">R${room.round}</span></td> <td><span class="badge ${phaseBadge}">${room.phase}</span></td> <td class="fw-bold font-monospace">${room.time_left}s</td> <td>${room.players}</td> <td class="text-success fw-bold">${room.completed}</td> <td class="text-danger fw-bold">${room.wasted}</td> <td>${room.oven}</td> <td>${room.built}</td> ; tbody.appendChild(row); }); });
-        
-
         s.on('connect', () => {
             if (State.pendingQrRoom) return;
             if (State.isInitialConnect) {
