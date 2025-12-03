@@ -670,61 +670,101 @@
         document.getElementById('cfd-tab')?.addEventListener('shown.bs.tab', () => { if(State.lastCFDData) Charts.renderCFD(State.lastCFDData); });
     });
 
-    // Public API
+/* =========================================
+       10. PUBLIC API & MODAL LOGIC
+       ========================================= */
+    
+    // Helper to format health status into Bootstrap badges
+    function getStatusBadge(status) {
+        if (status === 'running' || status === 'connected') {
+            return '<span class="badge bg-success">OK</span>';
+        } else if (status === 'unknown') {
+            return '<span class="badge bg-warning text-dark">Unknown</span>';
+        } else {
+            return `<span class="badge bg-danger">Error</span> <small class="text-muted ms-1">(${status})</small>`;
+        }
+    }
+
+    function fetchSystemHealth() {
+        const contentDiv = document.getElementById("uptime-content");
+        if(!contentDiv) return;
+
+        contentDiv.innerHTML = '<div class="text-center"><div class="spinner-border spinner-border-sm text-primary"></div> Checking system health...</div>';
+
+        fetch("/health")
+            .then(res => {
+                // If the DB is down, it returns 500, but still contains JSON data we want to display
+                return res.json();
+            })
+            .then(data => {
+                // Expecting data: { "app": "running", "redis": "...", "db": "..." }
+                contentDiv.innerHTML = `
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Application
+                            ${getStatusBadge(data.app)}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Redis Connection
+                            ${getStatusBadge(data.redis)}
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Database Connection
+                            ${getStatusBadge(data.db)}
+                        </li>
+                    </ul>
+                `;
+            })
+            .catch(err => {
+                contentDiv.innerHTML = `<div class="alert alert-danger">Failed to fetch health status.</div>`;
+                console.error("Health check failed:", err);
+            });
+    }
+
+    // --- Public Window Functions ---
+
     window.prepareIngredient = (type) => State.socket.emit('prepare_ingredient', { ingredient_type: type });
     window.triggerBuild = (sid) => State.socket.emit('build_pizza', { player_sid: sid });
     window.cancelQrJoin = () => { window.location.href = "/"; };
+
     window.openFacilitator = () => {
-        bootstrap.Modal.getOrCreateInstance(document.getElementById('roomModal')).hide();
+        // 1. Hide the Login Modal
+        const roomModalEl = document.getElementById('roomModal');
+        const roomModal = bootstrap.Modal.getInstance(roomModalEl) || new bootstrap.Modal(roomModalEl);
+        roomModal.hide();
+
+        // 2. Show the Facilitator Modal
         const facEl = document.getElementById('facilitatorModal');
-        new bootstrap.Modal(facEl).show();
-        openUptimeModal();
-        State.socket.emit('request_admin_dashboard');
-        State.dashboardInterval = setInterval(() => State.socket.emit('request_admin_dashboard'), 3000);
+        const facModal = new bootstrap.Modal(facEl);
+        facModal.show();
+
+        // 3. Fetch Data
+        fetchSystemHealth(); // Fetch /health data
         
+        // 4. Start Live Dashboard polling
+        State.socket.emit('request_admin_dashboard');
+        // Clear existing interval just in case
+        if (State.dashboardInterval) clearInterval(State.dashboardInterval);
+        State.dashboardInterval = setInterval(() => State.socket.emit('request_admin_dashboard'), 3000);
     };
+
     window.closeFacilitator = () => {
-    const facModal = bootstrap.Modal.getInstance(document.getElementById('facilitatorModal'));
-    if (facModal) facModal.hide();
+        // 1. Hide Facilitator Modal
+        const facEl = document.getElementById('facilitatorModal');
+        const facModal = bootstrap.Modal.getInstance(facEl);
+        if (facModal) facModal.hide();
 
-    // Stop the dashboard polling
-    if (State.dashboardInterval) {
-        clearInterval(State.dashboardInterval);
-        State.dashboardInterval = null;
-    }
+        // 2. Stop polling
+        if (State.dashboardInterval) {
+            clearInterval(State.dashboardInterval);
+            State.dashboardInterval = null;
+        }
 
-    // Return to room form
-    const roomModalEl = document.getElementById('roomModal');
-    const roomModal = new bootstrap.Modal(roomModalEl, { backdrop: 'static', keyboard: false });
-    roomModal.show();
-};
+        // 3. Show Room/Login Modal (Return to start state)
+        const roomModalEl = document.getElementById('roomModal');
+        // Use getOrCreateInstance to prevent duplicates or errors if it was previously hidden
+        const roomModal = bootstrap.Modal.getOrCreateInstance(roomModalEl, { backdrop: 'static', keyboard: false });
+        roomModal.show();
+    };
 
-
-function openUptimeModal() {
-    fetch("/uptime")
-        .then(res => res.json())
-        .then(data => {
-            const monitor = data.monitors[0]; // or loop if multiple
-
-            const statusMap = {
-                0: "Paused",
-                1: "Not Checked Yet",
-                2: "Up",
-                8: "Seems Down",
-                9: "Down"
-            };
-
-            document.getElementById("uptime-content").innerHTML = `
-                <div class="card p-3">
-                    <h5>${monitor.friendly_name}</h5>
-                    <p>Status: <strong>${statusMap[monitor.status]}</strong></p>
-                    <p>Uptime (24h): ${monitor.all_time_uptime_ratio}%</p>
-                </div>
-            `;
-        })
-        .catch(() => {
-            document.getElementById("uptime-content").innerText = "Unable to load status.";
-        });
-}
-    
 })();
