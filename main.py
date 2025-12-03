@@ -580,7 +580,7 @@ def end_round(room):
     socketio.emit('game_state', sanitize_game_state_for_emit(game_state), room=room)
     socketio.emit('round_ended', result, room=room)
     
-    eventlet.spawn(debrief_timer, game_state["debrief_duration"], room)
+    """eventlet.spawn(debrief_timer, game_state["debrief_duration"], room)"""
 
 def generate_customer_orders(round_duration):
     order_types = [
@@ -659,6 +659,7 @@ def uptime_status():
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
 
