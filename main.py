@@ -627,9 +627,29 @@ def health_check():
 
     return status, http_code
 
+API_KEY = "m801914576-7ef2800a65d3fd982d1cc109"   # Use a read-only key
 
+@app.route("/uptime")
+def uptime_status():
+    url = "https://api.uptimerobot.com/v2/getMonitors"
+
+    payload = {
+        "api_key": API_KEY,
+        "format": "json",
+        "logs": 1
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    r = requests.post(url, json=payload, headers=headers)
+    data = r.json()
+
+    return jsonify(data)
 
 if __name__ == '__main__':
     socketio.run(app)
+
 
 
