@@ -610,16 +610,50 @@
             UI.refreshGameState(State.gameData);
         });
 
-        s.on('admin_dashboard_update', (data) => {
-             const tbody = document.getElementById('facilitator-table-body');
-             if (!tbody) return;
-             tbody.innerHTML = '';
-             data.rooms.forEach(room => {
-                 const row = document.createElement('tr');
-                 row.innerHTML = `<td class="text-start fw-bold">${room.room}</td><td>${room.phase}</td><td>${room.time_left}s</td><td>${room.players}</td><td>${room.completed}</td><td>${room.wasted}</td><td>${room.oven}</td><td>${room.built}</td>`;
-                 tbody.appendChild(row);
-             });
-        });
+s.on('admin_dashboard_update', (data) => {
+    const tbody = document.getElementById('facilitator-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    // Safely normalise whatever the server sends into an array
+    let roomsArray = [];
+
+    if (Array.isArray(data.rooms)) {
+        roomsArray = data.rooms;
+    } else if (data.rooms && typeof data.rooms === 'object') {
+        // e.g. { "Room A": { phase: "...", ... }, ... }
+        roomsArray = Object.keys(data.rooms).map((roomName) => ({
+            room: roomName,
+            ...data.rooms[roomName]
+        }));
+    }
+
+    // If still nothing, show a friendly “no data” row
+    if (!roomsArray.length) {
+        const row = document.createElement('tr');
+        row.innerHTML =
+            '<td colspan="8" class="text-center text-muted">No active rooms yet.</td>';
+        tbody.appendChild(row);
+        return;
+    }
+
+    roomsArray.forEach((room) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="text-start fw-bold">${room.room}</td>
+            <td>${room.phase ?? '-'}</td>
+            <td>${room.time_left != null ? room.time_left + 's' : '-'}</td>
+            <td>${room.players ?? '-'}</td>
+            <td>${room.completed ?? '-'}</td>
+            <td>${room.wasted ?? '-'}</td>
+            <td>${room.oven ?? '-'}</td>
+            <td>${room.built ?? '-'}</td>
+        `;
+        tbody.appendChild(row);
+    });
+});
+
     }
 
     /* =========================================
