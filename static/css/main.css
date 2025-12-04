@@ -650,8 +650,9 @@ header h5 {
 }
 
 .modal {
-  overflow-y: hidden;
+  overflow-y: auto;   /* allow the full modal to scroll */
 }
+
 /* Add to main.css */
 
 /* 1. Prevent browser scrolling when touching an ingredient */
@@ -715,4 +716,26 @@ header h5 {
   }
 }
 
+/* Let the entire Room modal scroll on mobile */
+@media (max-width: 768px) {
+
+  /* Remove height caps for this modal */
+  #roomModal .modal-content,
+  #roomModal .modal-body {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  /* Full-width mobile dialog */
+  #roomModal .modal-dialog {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Let the whole modal scroll if it’s taller than the viewport */
+  #roomModal {
+    overflow-y: auto !important;
+  }
+}
 
