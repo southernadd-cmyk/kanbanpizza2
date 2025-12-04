@@ -683,3 +683,25 @@ header h5 {
 .sortable-chosen {
   background: #f0f0f0;
 }
+
+/* Make Active Rooms + High Scores area use full height on mobile */
+@media (max-width: 768px) {
+  /* Only affect the Room modal */
+  #roomModal .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 95vh;   /* keep your overall cap */
+  }
+
+  #roomModal .modal-header {
+    flex-shrink: 0;
+  }
+
+  #roomModal .modal-body {
+    flex: 1;            /* take remaining height */
+    min-height: 0;
+    max-height: none;   /* override the global 75vh limit */
+    overflow-y: auto;   /* single scrollable area */
+  }
+}
+
