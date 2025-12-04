@@ -57,6 +57,7 @@
                 this.sounds[key] = new Howl({
                     src: [path],
                     volume: 0.5,
+                    loop: key === 'oven_hum',  
                     onloaderror: () => { /* Suppress 404 errors in console if files missing */ }
                 });
             }
