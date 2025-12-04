@@ -739,3 +739,27 @@ header h5 {
   }
 }
 
+
+/* Stronger borders for all form controls */
+.form-control {
+  border: 2px solid #4a4a4a !important;  /* dark grey = good contrast on white */
+}
+
+/* Visible focus state */
+.form-control:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 2px;
+}
+
+/* Stronger contrast borders for interactive dropzones */
+#prepared-pool,
+#pizza-builder,
+#pizza-builders-container .pizza-builder-dropzone,
+#oven,
+#built-pizzas,
+#completed,
+#wasted,
+#orders-list {
+  border: 2px dashed #4a4a4a !important;  /* darker border for contrast */
+}
+
